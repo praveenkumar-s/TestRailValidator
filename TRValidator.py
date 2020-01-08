@@ -49,8 +49,8 @@ if __name__ == "__main__":
 
     
 #####Parse Arguments
-    root = 'D:/WIN_WORK_2/KT-ATF-Core/KT-ATF/KT-ATF-WIN/Sessions'
-    result_csv_name = "result.csv"
+    root =None
+    result_csv_name = None
     report_all = False
     arguments = sys.argv
 
