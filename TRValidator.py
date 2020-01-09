@@ -30,10 +30,13 @@ def get_unmapped_items_per_session(path_to_session_file):
     result=[]
     doc = xml.dom.minidom.parse(path_to_session_file)
     TestSuites = doc.getElementsByTagName("TestSuite")
+    TestCaseCount=0
+    BlankCount=0
     for Suites in TestSuites:
         if(bool(Suites.getAttribute('Enabled'))):
-            TestCases = Suites.getElementsByTagName("TestCase")
+            TestCases = Suites.getElementsByTagName("TestCase")                        
             for Cases in TestCases:
+                TestCaseCount=TestCaseCount+1
                 Test_rail_id = Cases.getAttribute("TestRailID")
                 enabled = Cases.getAttribute("Enabled")
                 name = Cases.getAttribute("Name")
@@ -42,8 +45,11 @@ def get_unmapped_items_per_session(path_to_session_file):
                     "TestCase":name,
                     "Enabled":enabled,
                     "TestRailId":Test_rail_id
+                    
                 })
-    return result
+                if(len(Test_rail_id)==0):
+                        BlankCount=BlankCount+1
+    return result,TestCaseCount,BlankCount
 
 if __name__ == "__main__":
 
@@ -70,20 +76,26 @@ if __name__ == "__main__":
     config = json.load(open('config.json'))
     send_mail = config["send_Email"]
     final_result = {}
+    total_count ={
+        "Test_case_count":0,
+        "Blank_count":0
+    }
     files_to_be_validated = get_files_to_be_validated(root)
 
     filtered_session_files = filter_only_session_files(files_to_be_validated)
 
     for files in filtered_session_files:
         try:
-            file_result = get_unmapped_items_per_session(files)
+            file_result,TestCaseCount,BlankCount = get_unmapped_items_per_session(files)
+            total_count["Test_case_count"]= total_count["Test_case_count"]+TestCaseCount
+            total_count["Blank_count"]= total_count["Blank_count"]+BlankCount
         except:
             print("{0} files is malformed and will not be considered for validation!".format(files))
         final_result[files]= file_result
     
     data_frame = Utils.save_as_csv(final_result , result_csv_name , report_all)
     if(data_frame.__len__()>0 and send_mail):
-        msg = Utils.create_email_msg(config['email_recipients'], result_csv_name , "Missing TestRail Ids for {0} : {1}".format(config['division'], config['POR']))
+        msg = Utils.create_email_msg(config['email_recipients'], result_csv_name , "Missing TestRail Ids for {0} : {1}".format(config['division'], config['POR']),total_count["Test_case_count"],total_count["Blank_count"])
         Utils.sendmail_msg(msg)
         sys.exit(1)
     sys.exit(0)

@@ -1,1 +1,1 @@
-.\TRValidator.exe - session "D:/WIN_WORK_2/KT-ATF-Core/KT-ATF/KT-ATF-WIN/Sessions" -output "result_port.csv" -report_all false
+.\TRValidator.exe -session "D:/WIN_WORK_2/KT-ATF-Core/KT-ATF/KT-ATF-WIN/Sessions" -output "result_port.csv" -report_all false

@@ -47,13 +47,16 @@ def save_as_csv(input_json , output_file_name , report_only_failures=False):
 
 
 
-def create_email_msg( owner_email, attachment_file_path, subject ):
+def create_email_msg( owner_email, attachment_file_path, subject ,TestCaseCount,BlankCount):
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['To'] = owner_email
     msg['From'] = FROM_ADDR
     filename = attachment_file_path
+    body = "Total number of TestCase = {0} \nTotal number of test case without TestRail id : {1}".format(TestCaseCount,BlankCount)
+    body = MIMEText(body)
+    msg.attach(body)
     attachment = open(attachment_file_path, "rb") 
     
     # instance of MIMEBase and named as p 
